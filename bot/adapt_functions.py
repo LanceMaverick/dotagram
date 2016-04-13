@@ -13,7 +13,7 @@ trie = Trie()
 tagger = EntityTagger(trie, tokenizer)
 parser = Parser(tokenizer, tagger)
 
-
+#uses the mycroft AI intent parser for some simple ...intent parsing
 def skyAdapt():
     engine = IntentDeterminationEngine()
 

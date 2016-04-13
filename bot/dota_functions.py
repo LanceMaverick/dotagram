@@ -17,8 +17,6 @@ import logging
 #All functions are agnostic of which identifier is used. message.from_user.id is safer,
 #will implement method to register user with telegram id and ue config file instead of dict.
 
-
-
 #get news posts from steam api
 def steamNews(payload):
     
@@ -74,7 +72,6 @@ def getResults(match,key):
     vals_list = result[key]
     return vals_list
 
-
 #Takes list of players from match and returns the value of an attribute
 #for a given player, e.g deaths, hero healing, tower damage etc
 def getPlayerVal(vals_list,account_id,val):
@@ -82,8 +79,6 @@ def getPlayerVal(vals_list,account_id,val):
     for d in vals_list:
         if d['account_id'] == account_id:
             return d[val]
-
-
 
 #returns a zipped list of match_id's with a given player's attribute for each
 #of the player's last 25 matches
@@ -105,9 +100,7 @@ def getSum(account_id,days,attribute):
 
     return zip(match_ids,attr_list)    
 
-
 #To link telegram user with dota profile.
-
 def get_dota_id_from_telegram(user_id):
     with dataset.connect() as db:
         catmatch = db['user'].find_one(telegram_id=user_id)
@@ -118,7 +111,6 @@ def getLastMatch(dota_id):
     matches = findMatches(dota_id)
     match_id = (matches[0]["match_id"])
     return match_id
-
 
 #Returns ranked dict based on player value.
 def valRank(val):

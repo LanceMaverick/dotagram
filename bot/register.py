@@ -7,6 +7,7 @@ import beard_functions as bf
 from msg_texts import * 
 import logging
 
+#please ignore the weird references to cats in the functions. Nothing to see here
 def regCats(bot,message):
     
     text = message.text

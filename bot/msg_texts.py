@@ -14,11 +14,11 @@ With the powers invested in me by Lord Gaben, I respond to the following command
 
 *DOTA EVENTS*
 *dota at* - creates a new dota event or modifies an existing event's time:
-    "*/dota at 18:45*"
-    "*/dota at 18.45*"
-    "*/dota at 1845*"
-    "*/dota at 18:45 with alice, bob*" (will shotgun alice and bob)
-    "*/dota*"
+    "*dota at 18:45*"
+    "*dota at 18.45*"
+    "*dota at 1845*"
+    "*dota at 18:45 with alice, bob*" (will shotgun alice and bob)
+    "*dota*"
 
 */delete dota* - will remove the current dota event
 *shotgun!* - shotgun for dota

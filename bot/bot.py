@@ -19,10 +19,6 @@ import msg_texts
 import register as reg
 from time import sleep
 
-
-
-
-
 sys.path.append(abspath(join(abspath(dirname(__file__)), "..")))
 
 steam_key = os.environ.get('DOTA2_API_KEY')
@@ -117,15 +113,11 @@ def main():
                         bf.dotaNews(bot,message)
                     else:
                         bf.sendText(bot,chat_id,title+' is not a recognised steam game') #more steam games can be added
-                
-               
 
                 #send help text
                 if bf.command('/help',text):
                     bf.sendText(bot,chat_id,msg_texts.help())
                     bf.sendText(bot,chat_id,msg_texts.readme())
-                
-
                 
                 #display database entries which user has permission to see
                 if bf.command('/database',text):
@@ -172,7 +164,6 @@ def main():
                         if shotguns:
                             for cat in shotguns:
                                 dotes.shotgun(message,cat)
-
                 
                 #delete dota event
                 if bf.command('/delete dota',text): 
@@ -229,7 +220,6 @@ def main():
                     else:
                         events.nodota(bot,message)
                 
-                
                 #AI tests
                 intents = af.intentChecker(skb_intelligence, 0.3, text)
                 try:
@@ -280,10 +270,8 @@ def main():
         except URLError as e:
             sleep(1)
 
-    
-    
 
 if __name__ == '__main__':
-    while True:
+    while True: #pls no more
         main()
 

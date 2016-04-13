@@ -22,8 +22,8 @@ import os
 import dataset
 plt.xkcd()
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',stream=sys.stdout, level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler())
+#logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',stream=sys.stdout, level=logging.INFO)
+#logging.getLogger().addHandler(logging.StreamHandler())
 
 def matches(bot,message):
     try:
@@ -38,7 +38,6 @@ def matches(bot,message):
     keyboard = [match_ids[:3],match_ids[4:7]]
     reply_markup = telegram.ReplyKeyboardMarkup(keyboard,one_time_keyboard=True)
     bot.sendMessage(chat_id=message.chat_id, text="Choose match:", reply_markup=reply_markup)
-
         
 # Request, format and send dota last match info
 def last_match(bot, message, match_id=None):
@@ -112,8 +111,6 @@ def feeding(bot,message,BASE_URL,update=False):
     ind = np.arange(N)
     width =0.8
     bars = ax.bar(ind, feed_values, width)
-    #,color='#e2e6ed')
-    #ax.set_axis_bgcolor('#bcc5d4')
     ax.set_xlim(-width,len(ind)+width)
     ax.set_ylim(0,max(feed_values)+2)
     ax.set_ylabel('deaths per game')
@@ -132,7 +129,6 @@ def feeding(bot,message,BASE_URL,update=False):
 #Wrapper for telegram.bot.sendMessage() function. Markdown enabled
 def sendText(bot,chat_id,text,webprevoff=False):
     
-    #
     try:
         bot.sendMessage(chat_id=chat_id,text=text,parse_mode="Markdown",disable_web_page_preview=webprevoff)
     except:
@@ -152,13 +148,6 @@ def keywords(words,text):
     else:
         return False
 
-
-def infoprint(bot,message,text):
-    logging.info(("\nDota info request:\n["+text+"]"))
-    logging.info("USER: ",message.from_user.id,message.from_user.first_name) 
-    logging.info("USER MESSAGE:")
-    logging.info(message.text)
-
 #http POST request 
 def postImage(imagePath,chat_id,REQUEST_URL):
 #    pdb.set_trace()
@@ -169,7 +158,6 @@ def postImage(imagePath,chat_id,REQUEST_URL):
         return logging.error('could not send local photo',sys.exc_info()[0])
     return requests.post(REQUEST_URL + '/sendPhoto', params=data, files=files)
     
- 
 #thank user
 def thank(bot, chat_id, message):
 
@@ -186,11 +174,9 @@ def greet(bot,chat_id,message):
                 msgs['welcome2'],
                 message.from_user.first_name]))
 
-
 #say goodbye to users
 def goodbye(bot,chat_id,message):
     sendText(bot,chat_id,"Daisy...daisy...") 
-
 
 #echo user message to given chat id    
 def echocats(bot,message):
@@ -200,7 +186,6 @@ def echocats(bot,message):
         sendText(bot,chat,echo)
     except:
         return logging.error('failed to echo message',message,echo,chat)
-
 
 #get latest dota news post
 def dotaNews(bot,message):
@@ -264,7 +249,6 @@ def postUpdate(bot,message):
             for i in range (1,db_size+1):
                 db['user'].update(dict(id=i,unpatched=True),['id'])
 
-
 #checks if something has expired, e.g a dota event or the time between dota 2 update checking
 def expiry(initial_time,dtime): #dtime in minutes
     if datetime.datetime.now() > initial_time+datetime.timedelta(minutes=dtime):
@@ -283,17 +267,14 @@ def msgTag(bot, message, name):
     sendText(bot,message.chat_id,'Ok '+user_name.lower()+msgs['tag_saved']+name+'.') 
     return tagged_msg
 
-
 def tagReply(bot,message,tag):
     user_name = message.from_user.first_name
     sendText(bot,message.chat_id,user_name+msgs['tag_reply'])
     sendText(bot,message.chat_id,'from: '+tag['sender']+' at '+tag['time'].strftime('%m-%d %H:%M')+'\n\n'+tag['text'])
     
 def delDotaTable():
-    
     with dataset.connect() as db:
         try:
             db['dota_evt'].delete()
         except:
             logging.info('no dota table to delete in database')
-######## test functions for Rpi functions ############

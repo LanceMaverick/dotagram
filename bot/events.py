@@ -199,12 +199,9 @@ def dotaQuery(bot, message, dotes):
     else:
         dotes.time_info(message)
 
-
 #DEPRECATED to be removed from use in main and replaced with the more general dotaQuery()
 def nodota(bot, message):
     sendText(bot,message.chat_id,msgs['nodota'])
-
-
 
 #For unshotgunning, unrdry-ing 
 def remove_list_val(the_list, val):
@@ -213,7 +210,6 @@ def remove_list_val(the_list, val):
 #zero pad time format
 def tformat(date):
     return str(date.hour).zfill(2)+":"+str(date.minute).zfill(2)
-
 
 #Find if the time was specified for an event and what it is
 def get_time(bot,message):
@@ -234,7 +230,6 @@ def get_time(bot,message):
     
     return time
 
-
 def get_str_list(bot,message,match):
     if match in message.text:
         string = message.text.split("with",1)[1]
@@ -243,14 +238,12 @@ def get_str_list(bot,message,match):
     else:
         return []
     
-    
 def get_dtime(dtime):
     days, seconds = dtime.days, dtime.seconds
     hours = days * 24 + seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
     return str(hours),str(minutes),str(seconds)
-
 
 #DEPRECATED
 #Find out what kind of event it is 
