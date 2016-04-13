@@ -1,0 +1,12 @@
+yaml and pickle files are stored here. Current files used by the bot are:
+
+catabase.yaml           - registered Dota 2 players
+catmins.p               - catabase admins
+d2_patch_id.yaml        - gid for latest Dota 2 patch
+echochat.yaml           - chat_id for chat to send /echo messages to 
+feeds.p                 - Dota 2 'feeding stats' for registered players
+unpatched.yaml          - copy of potentially unpatched players from catabase.yaml
+
+-All files should be automatically created.
+
+
