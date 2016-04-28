@@ -13,43 +13,22 @@ import dataset
 #logging.getLogger().addHandler(logging.StreamHandler())
 
 token = os.environ.get('TG_BOT_TOKEN')
-BASE_URL = 'https://api.telegram.org/bot%s' % token
+BASE_URL = 'https://api.telegram.org/bot{token}'.format(token=token)
 
-#class for dota event
-class dota:
+class Event(object):
+    """A class to make events. """
 
-    def __init__(self,bot,message,time):
-
-        self.bot = bot
-        self.creator = message.from_user
-        self.message = message
-        self.rdrys = []
-        self.people =[]
-        self.people.append(self.creator.first_name)
+    def __init__(self, bot, message, time):
 
         #set times
         self.time = time
         self.date_create = datetime.datetime.now()
         self.hour = None
         self.minute = None
-        self.date_dota = None
+        self.date_event = None
         self.set_time(self.time)
 
-        #dota initialization text message
-        sendText(bot,message.chat_id,
-                ' '.join([msgs['makedota'],
-                    tformat(self.date_dota),
-                    msgs['w'],
-                    self.creator.first_name])
-                )
-        self.play_since_patch(self.creator)
-
-        self.dtime = self.date_dota-self.date_create
-
-
-        self.check_fnd()
-
-        strtime = self.date_dota.strftime('%Y-%m-%d %H:%M:%S')
+        strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
         with dataset.connect() as db:
             print("inserting database entry")
             print(strtime)
@@ -60,18 +39,49 @@ class dota:
         try:
             self.hour = time[:2]
             self.minute = time[2:]
-            self.date_dota = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
+            self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
 
-        except:
+        except TypeError:
             self.hour = '19'
             self.minute = '30'
-            self.date_dota = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
+            self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
 
             sendText(self.bot,self.message.chat_id,msgs['t_error'])
 
-        strtime = self.date_dota.strftime('%Y-%m-%d %H:%M:%S')
+        strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
         with dataset.connect() as db:
             db['dota_evt'].insert(dict(stime = strtime)) #adds new entry rather than changing time for record keeping
+
+
+
+#class for dota event
+class dota(Event):
+
+    def __init__(self,bot,message,time):
+        super(dota, self).__init__(bot, message, time)
+
+        self.bot = bot
+        self.creator = message.from_user
+        self.message = message
+        self.rdrys = []
+        self.people =[]
+        self.people.append(self.creator.first_name)
+
+
+        #dota initialization text message
+        sendText(bot,message.chat_id,
+                ' '.join([msgs['makedota'],
+                    tformat(self.date_event),
+                    msgs['w'],
+                    self.creator.first_name])
+                )
+        self.play_since_patch(self.creator)
+
+        self.dtime = self.date_event-self.date_create
+
+
+        self.check_fnd()
+
 
     def play_since_patch(self,player):
         player_id = player.id
@@ -165,21 +175,21 @@ class dota:
                 +', '.join(self.people))
 
     def time_info(self,message):
-        self.dtime = self.date_dota-datetime.datetime.now()
+        self.dtime = self.date_event-datetime.datetime.now()
     #+datetime.timedelta(hours=1) accounts for time zone difference. Remove when server is UK side.
         dt_hours,dt_minutes,dt_seconds = get_dtime(self.dtime)
         dtime_str = ':'.join([dt_hours,dt_minutes,dt_seconds])
 
-        if (datetime.datetime.now()>self.date_dota):
-            when_str = 'Dota already began at '+tformat(self.date_dota)
+        if (datetime.datetime.now()>self.date_event):
+            when_str = 'Dota already began at '+tformat(self.date_event)
         else:
-            when_str = "Dota will begin at "+tformat(self.date_dota)+", in "+dtime_str
+            when_str = "Dota will begin at "+tformat(self.date_event)+", in "+dtime_str
 
         sendText(self.bot,message.chat_id,when_str+"\n*Shotguns:*\n"+', '.join(self.people))
 
     def tcheck(self,message):
         mins = 15
-        if self.date_dota - datetime.datetime.now() < datetime.timedelta(minutes=mins) and self.date_dota > datetime.datetime.now():
+        if self.date_event - datetime.datetime.now() < datetime.timedelta(minutes=mins) and self.date_event > datetime.datetime.now():
             sendText(self.bot,message.chat_id,'Dota will begin in a few minutes. Get hype!')
             return True
         else:

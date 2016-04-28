@@ -269,6 +269,8 @@ def main():
                 raise e
         except URLError as e:
             sleep(1)
+        except:                 # This is terrible, and it's my fault (nasfarley88)
+            pass
 
 
 if __name__ == '__main__':
