@@ -1,0 +1,21 @@
+-e git+https://github.com/mycroftai/adapt@7ae90364ffcb1441d47d9f3db6dcd26188fe6e80#egg=adapt_parser-master
+alembic==0.8.6
+cycler==0.10.0
+dataset==0.6.4
+dota2py==0.1.3
+future==0.15.2
+Mako==1.0.4
+MarkupSafe==0.23
+matplotlib==1.5.1
+normality==0.2.4
+numpy==1.11.0
+pyee==0.1.0
+pyparsing==2.1.1
+python-dateutil==2.5.3
+python-editor==1.0
+python-telegram-bot==4.0.1
+pytz==2016.4
+PyYAML==3.11
+requests==2.9.1
+six==1.10.0
+SQLAlchemy==1.0.12

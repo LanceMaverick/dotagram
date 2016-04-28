@@ -17,4 +17,4 @@ def setuser(admin,tg_id):
         else:
             return 'Please specify whether to \'add\' or \'remove \' admin as first argument, telegram id as second'
 
-#print setuser(admin,tg_id)
+#print(setuser(admin,tg_id))

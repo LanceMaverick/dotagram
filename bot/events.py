@@ -1,6 +1,6 @@
 import re
 import telegram
-import datetime 
+import datetime
 import logging
 import pdb
 import random
@@ -17,16 +17,16 @@ BASE_URL = 'https://api.telegram.org/bot%s' % token
 
 #class for dota event
 class dota:
-    
+
     def __init__(self,bot,message,time):
-        
+
         self.bot = bot
         self.creator = message.from_user
-        self.message = message 
+        self.message = message
         self.rdrys = []
         self.people =[]
         self.people.append(self.creator.first_name)
-        
+
         #set times
         self.time = time
         self.date_create = datetime.datetime.now()
@@ -34,7 +34,7 @@ class dota:
         self.minute = None
         self.date_dota = None
         self.set_time(self.time)
-                      
+
         #dota initialization text message
         sendText(bot,message.chat_id,
                 ' '.join([msgs['makedota'],
@@ -43,16 +43,16 @@ class dota:
                     self.creator.first_name])
                 )
         self.play_since_patch(self.creator)
-   
+
         self.dtime = self.date_dota-self.date_create
 
 
         self.check_fnd()
-        
+
         strtime = self.date_dota.strftime('%Y-%m-%d %H:%M:%S')
         with dataset.connect() as db:
-            print "inserting database entry"
-            print strtime
+            print("inserting database entry")
+            print(strtime)
             dota_table = db['dota_evt']
             dota_table.insert(dict(stime = strtime))
 
@@ -66,18 +66,18 @@ class dota:
             self.hour = '19'
             self.minute = '30'
             self.date_dota = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
-            
+
             sendText(self.bot,self.message.chat_id,msgs['t_error'])
-        
+
         strtime = self.date_dota.strftime('%Y-%m-%d %H:%M:%S')
         with dataset.connect() as db:
             db['dota_evt'].insert(dict(stime = strtime)) #adds new entry rather than changing time for record keeping
-    
+
     def play_since_patch(self,player):
         player_id = player.id
-        
+
         with dataset.connect() as db:
-            if db['user'].find_one(telegram_id=player_id,unpatched=True): 
+            if db['user'].find_one(telegram_id=player_id,unpatched=True):
                 db['user'].update(dict(telegram_id=player_id, unpatched =False), ['telegram_id'])
                 return sendText(self.bot,self.message.chat_id,msgs['patch_warn'])
             else:
@@ -104,9 +104,9 @@ class dota:
                     ", you already shotgunned"])
                     )
         self.play_since_patch(message.from_user)
-        
+
     def unshotgun(self,message,case):
-        
+
         if (case == 'shotgun'):
             self.people = remove_list_val(self.people,message.from_user.first_name)
         if (case == 'shotgun' or 'rdry'):
@@ -117,7 +117,7 @@ class dota:
 
     def rdry_up(self,message):
 
-        
+
         if message.from_user.first_name not in self.rdrys:
             self.rdrys.append(message.from_user.first_name)
             sendText(self.bot,message.chat_id,
@@ -134,11 +134,11 @@ class dota:
 
     def get_rdrys(self):
         return self.rdrys
-    
+
     def stack(self,message):
         num_rdry = len(self.rdrys)
         num_shot = len(self.people)
-        
+
         if (num_shot == 5):
             sendText(self.bot,message.chat_id,
                     "There is currently a 5 stack with: \n"
@@ -166,10 +166,10 @@ class dota:
 
     def time_info(self,message):
         self.dtime = self.date_dota-datetime.datetime.now()
-	#+datetime.timedelta(hours=1) accounts for time zone difference. Remove when server is UK side.
+    #+datetime.timedelta(hours=1) accounts for time zone difference. Remove when server is UK side.
         dt_hours,dt_minutes,dt_seconds = get_dtime(self.dtime)
         dtime_str = ':'.join([dt_hours,dt_minutes,dt_seconds])
-        
+
         if (datetime.datetime.now()>self.date_dota):
             when_str = 'Dota already began at '+tformat(self.date_dota)
         else:
@@ -182,7 +182,7 @@ class dota:
         if self.date_dota - datetime.datetime.now() < datetime.timedelta(minutes=mins) and self.date_dota > datetime.datetime.now():
             sendText(self.bot,message.chat_id,'Dota will begin in a few minutes. Get hype!')
             return True
-        else: 
+        else:
             return False
 
 
@@ -203,7 +203,7 @@ def dotaQuery(bot, message, dotes):
 def nodota(bot, message):
     sendText(bot,message.chat_id,msgs['nodota'])
 
-#For unshotgunning, unrdry-ing 
+#For unshotgunning, unrdry-ing
 def remove_list_val(the_list, val):
        return [value for value in the_list if value != val]
 
@@ -215,19 +215,19 @@ def tformat(date):
 def get_time(bot,message):
     #logging.info('Getting dota time from message:',message.text)
     text = message.text
-   
+
     for ch in [':','.',';','-']:
         if  ch in message.text:
             text = message.text.replace(ch,'')
 
     match = re.search(r'at\s*(\w+)', text)
-    
+
     if match:
         time = str(match.group(1))
-    else:    
+    else:
         sendText(bot,message.chat_id,msgs['notime'])
         time = "1930"
-    
+
     return time
 
 def get_str_list(bot,message,match):
@@ -237,7 +237,7 @@ def get_str_list(bot,message,match):
         return split_list
     else:
         return []
-    
+
 def get_dtime(dtime):
     days, seconds = dtime.days, dtime.seconds
     hours = days * 24 + seconds // 3600
@@ -246,7 +246,7 @@ def get_dtime(dtime):
     return str(hours),str(minutes),str(seconds)
 
 #DEPRECATED
-#Find out what kind of event it is 
+#Find out what kind of event it is
 def get_event(message):
 
     for pattern in message.text.split():

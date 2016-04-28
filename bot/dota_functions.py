@@ -1,5 +1,5 @@
 #Functions for interfacting with DOTA 2 API. Uses the thin wrapper Dota2py by Andrew Snowden for requests
-#This is very quick and dirty 5am code do test requesting from DOTA 2 API. 
+#This is very quick and dirty 5am code do test requesting from DOTA 2 API.
 from dota2py import api
 import sys
 from os.path import abspath, join, dirname
@@ -19,7 +19,7 @@ import logging
 
 #get news posts from steam api
 def steamNews(payload):
-    
+
     steam_url = 'http://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/'
     try:
         response = requests.get(steam_url,params=payload)
@@ -31,9 +31,9 @@ def steamNews(payload):
 
 #check for new dota 2 patch from steam api
 def getNewPatch():
-    
+
     last_update = yaml.load(open('catabase/d2_patch_id.yaml','rb'))
-    
+
     payload={
             'appid':'570',
             'count':'20',
@@ -56,7 +56,7 @@ def getNewPatch():
         return patch
 
 #returns last 25 matches for given user
-def findMatches(account_id):                                  
+def findMatches(account_id):
     try:
         return api.get_match_history(account_id=account_id)["result"]["matches"]
     except:
@@ -65,9 +65,9 @@ def findMatches(account_id):
 
 #returns value for given key in results such as list of players, starttime etc
 #abstraction from api requests for simplicity, but currently experimenting with
-#using json  
+#using json
 def getResults(match,key):
-    
+
     result = match['result']
     vals_list = result[key]
     return vals_list
@@ -83,11 +83,11 @@ def getPlayerVal(vals_list,account_id,val):
 #returns a zipped list of match_id's with a given player's attribute for each
 #of the player's last 25 matches
 def getSum(account_id,days,attribute):
-    
+
     matches = findMatches(account_id)
     match_ids = []
     attr_list = []
-    
+
     for i in range (0,25):
         if matches[i].has_key("match_id"):
             try:
@@ -98,7 +98,7 @@ def getSum(account_id,days,attribute):
             except requests.exceptions.HTTPError as e:
                 logging.error("request error:",str(e))
 
-    return zip(match_ids,attr_list)    
+    return zip(match_ids,attr_list)
 
 #To link telegram user with dota profile.
 def get_dota_id_from_telegram(user_id):
@@ -106,7 +106,7 @@ def get_dota_id_from_telegram(user_id):
         catmatch = db['user'].find_one(telegram_id=user_id)
         return catmatch['dota_id']
 
-#Returns the last match of a given player 
+#Returns the last match of a given player
 def getLastMatch(dota_id):
     matches = findMatches(dota_id)
     match_id = (matches[0]["match_id"])
@@ -125,9 +125,9 @@ def valRank(val):
         top_index =val_lists[1].index(max(val_lists[1]))
         top_vals = val_lists[1][top_index]
         top_match = val_lists[0][top_index]
-       
+
         total_vals=sum(val_lists[1])
-        
+
         result = {
                 'dota_name':name,
                 'dota_id':account_id,
@@ -138,7 +138,6 @@ def valRank(val):
                 'match_list':val_lists[0]
                 }
         results.append(result)
-    
-    ranked = sorted(results, key=lambda k: k['total_vals'],reverse=True) 
-    return ranked
 
+    ranked = sorted(results, key=lambda k: k['total_vals'],reverse=True)
+    return ranked

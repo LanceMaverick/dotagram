@@ -4,4 +4,4 @@ def keySearch(lst,key,value):
     for item in lst:
         if item[key] == value:
             return item
-    return None    
+    return None

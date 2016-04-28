@@ -37,7 +37,7 @@ def main():
     update_id = None
     motion_on = False
     global BASE_URL
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',file='botlog.log')
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',filename='botlog.log')
 
 #    logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -57,7 +57,7 @@ def main():
     dota_checked = False
     patch_check_time = datetime.datetime.now()
     tags = []
-   
+
     #create Mycroft AI Adapt engine
     skb_intelligence  = af.skyAdapt()
 
@@ -70,46 +70,46 @@ def main():
         try:    #even dirtier, oh my!
 
             ############## TIME CHECKS ##############
-            #########################################           
-            
+            #########################################
+
             #checks if it's almost time for dota
             if (dotes and not dota_checked):
                 dota_t_check = dotes.tcheck(message)
                 logging.info("checked",update_id)
                 if (dota_t_check):
                     dota_checked = True
-            
-            #checks for new dota patches 
+
+            #checks for new dota patches
             if bf.expiry(patch_check_time,10):
                 bf.postUpdate(bot,message)
-                
-            #deletes a dota event if it is 6 hours passed the event start time 
+
+            #deletes a dota event if it is 6 hours passed the event start time
             if dotes and bf.expiry(dotes.date_dota,360):
                 dotes = None
                 bf.delDotaTable()
-            
+
             #Get updates from bot. 10s timeout on poll, update on new message
             for update in bot.getUpdates(offset=update_id, timeout=10):
                 chat_id = update.message.chat_id
                 message = update.message
-                text = update.message.text.encode('utf-8')
+                text = update.message.text #.encode('utf-8')
                 user = update.message.from_user
-                
-               
+
+
                 if bf.command('/myid',text):
                     bf.sendText(bot, chat_id, user.id)
 
                 ############ MESSAGE HANDLING ############
-                ##########################################           
-                
+                ##########################################
+
                 #latest steam news post for game. Currently just Dota
                 if(bf.command('/news',text)):
                     try:
                         title = text.split('/news ',1)[1]
                     except:
                         title = 'dota'
-                    
-                    if title == 'dota':    
+
+                    if title == 'dota':
                         bf.dotaNews(bot,message)
                     else:
                         bf.sendText(bot,chat_id,title+' is not a recognised steam game') #more steam games can be added
@@ -118,15 +118,15 @@ def main():
                 if bf.command('/help',text):
                     bf.sendText(bot,chat_id,msg_texts.help())
                     bf.sendText(bot,chat_id,msg_texts.readme())
-                
+
                 #display database entries which user has permission to see
                 if bf.command('/database',text):
                     reg.printCats(bot,message)
-                    
+
                 #delete catabase entry
                 if bf.command('/delete cat',text):
                     reg.deleteCat(bot,message)
-                
+
                 #banter command
                 if bf.command('/echo',text):
                     bf.echocats(bot,message)
@@ -138,11 +138,11 @@ def main():
                     else:
                         update_feeds = False
                     bf.feeding(bot,message,BASE_URL,update_feeds)
-                
-                #post last dota match details of user  
+
+                #post last dota match details of user
                 if bf.command('/lastmatch',text):
                     bf.last_match(bot,message)
-               
+
                 if bf.command('/matches',text):
                     bf.matches(bot,message)
 
@@ -157,37 +157,37 @@ def main():
                         dotes.set_time(time)
                         bf.sendText(bot,chat_id,'Dota time modified')
                         dotes.time_info(message)
-                    else:    
+                    else:
                         shotguns = events.get_str_list(bot,message,'with')
                         dotes = events.dota(bot,message,time)
                         logging.info('multi-shotgun:',shotguns)
                         if shotguns:
                             for cat in shotguns:
                                 dotes.shotgun(message,cat)
-                
+
                 #delete dota event
-                if bf.command('/delete dota',text): 
+                if bf.command('/delete dota',text):
                     if (dotes):
                         bf.sendText(bot,chat_id,'Dota event deleted')
                         dotes = None
                         bf.delDotaTable()
                     else:
                         events.nodota(bot,message)
-                
+
                 #shotgun a place in dota
                 if bf.command('shotgun!',text):
                     if (dotes):
                         dotes.shotgun(message)
                     else:
                         events.nodota(bot,message)
-                
+
                 #unshotgun your place in dota
                 if bf.command('unshotgun!',text):
                     if (dotes):
                         dotes.unshotgun(message,'shotgun')
                     else:
                         events.nodota(bot,message)
-                
+
                 #ready up for dota
                 if bf.command('unready!',text):
                     if (dotes):
@@ -200,26 +200,26 @@ def main():
                         dotes.rdry_up(message)
                     else:
                         events.nodota(bot,message)
-                
+
                 #reply to thank you messages
                 if bf.keywords(thanks,text.lower()) and  ('skybeard' in text.lower()):
                     bf.thank(bot,chat_id,message)
-                
+
                 #reply to greetings messages
                 if bf.keywords(greetings,text.lower()) and  ('skybeard' in text.lower()):
                     bf.greet(bot,chat_id,message)
-                
+
                 #reply to farewell messages
                 if (bf.keywords(goodbyes,text.lower())) and ('skybeard' in text.lower()):
                     bf.goodbye(bot,chat_id,message)
-                
+
                 #respond to queries on if dota is 5 stacked or not
                 if (bf.keywords(stack_queries,text.lower())):
                     if (dotes):
                         dotes.stack(message)
                     else:
                         events.nodota(bot,message)
-                
+
                 #AI tests
                 intents = af.intentChecker(skb_intelligence, 0.3, text)
                 try:
@@ -233,7 +233,7 @@ def main():
                                 dotes.set_time(time)
                                 bf.sendText(bot,chat_id,'Dota time modified')
                                 dotes.time_info(message)
-                            else:    
+                            else:
                                 shotguns = events.get_str_list(bot,message,'with')
                                 dotes = events.dota(bot,message,time)
                                 logging.info('multi-shotgun:',shotguns)
@@ -246,7 +246,7 @@ def main():
                             else:
                                 events.nodota(bot,message)
                 except:
-                    print 'no intents detected'
+                    print('no intents detected')
 
                 #tag someone in a message for the bot to send again when they're active in the chat
                 pending_tag = btools.keySearch(tags,'name',user.first_name.lower())
@@ -254,12 +254,12 @@ def main():
                     bf.tagReply(bot,message,pending_tag)
                     i = next(index for (index, entry) in enumerate(tags) if entry['name'] == pending_tag['name'])
                     tags.pop(i)
-                
+
                 tag_match = re.search(r'\/tag\s*(\w+)',text)
                 if tag_match:
                     tags.append(bf.msgTag(bot,message,tag_match.group(1)))
-              #  print tags
-                
+              #  print(tags)
+
                 update_id= update.update_id + 1
 
         except telegram.TelegramError as e:
@@ -274,4 +274,3 @@ def main():
 if __name__ == '__main__':
     while True: #pls no more
         main()
-
