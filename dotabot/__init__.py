@@ -154,12 +154,22 @@ class DotaBot(EventBot):
 
         #unshotgun your place in dota
         if bf.command('unshotgun!',text):
-            await self.sender.sendMessage("Not totally sure how to do that yet...")
-            # if (dotes):
-            #     dotes.unshotgun(message,'shotgun')
-            # else:
-            #     events.nodota(bot,message)
+            event = await self.get_future_event()
+            if event:
+                try:
+                    await self.remove_person_from_event(
+                        event,
+                        {"name": msg["from"]["username"]})
+                    await self.sender.sendMessage(
+                        "Your lack of interest has been noted.")
+                except PersonNotAttending:
+                    await self.sender.sendMessage(
+                        "You were never going to this event.")
+            else:
+                await self.sender.sendMessage(
+                    "I don't know about any Dota happening today.")
 
+        # TODO
         #ready up for dota
         if bf.command('unready!',text):
             assert False, "Sorry, not implemented yet!"

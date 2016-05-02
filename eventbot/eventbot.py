@@ -13,6 +13,9 @@ class EventAlreadyPlanned(Exception):
 class PersonAlreadyAttending(Exception):
     pass
 
+class PersonNotAttending(Exception):
+    pass
+
 class EventBot(telepot.async.helper.ChatHandler):
     def __init__(self, seed_tuple, timeout, db_name="sqlite:///eventbot.db"):
         """Basic bot for handling group events."""
@@ -54,25 +57,36 @@ class EventBot(telepot.async.helper.ChatHandler):
     async def add_person_to_event(self, event, person):
         with dataset.connect(self.db_name) as db:
             table = db[self.db_table_name]
-            for i in table.all():
-                print(i)
             event_from_db = GroupEvent(
                 **table.find_one(start_datetime=event.start_datetime))
-
 
             assert type(person) == dict
             assert "name" in person
 
-            print(event.export())
             if person["name"] in (x["name"] for x in event.people_attending):
                 raise PersonAlreadyAttending()
 
             event.people_attending.append(person)
 
             table.update(event.export(), ['start_datetime'])
-            print(event.export())
-            for i in table.all():
-                print(i)
+
+    async def remove_person_from_event(self, event, person):
+        with dataset.connect(self.db_name) as db:
+            table = db[self.db_table_name]
+            event_from_db = GroupEvent(
+                **table.find_one(start_datetime=event.start_datetime))
+
+            assert type(person) == dict
+            assert "name" in person
+
+            for peep in event.people_attending:
+                if person["name"] == peep["name"]:
+                    event.people_attending.remove(peep)
+                    break
+            else:
+                raise(PersonNotAttending)
+
+            table.update(event.export(), ['start_datetime'])
 
     async def create_event(self, msg, prompt="When's dota?"):
         """Create group event. """
