@@ -1,12 +1,16 @@
 import datetime
+import yaml
 
 class GroupEvent(object):
     def __init__(self,
                  start_datetime,
                  end_datetime=None,
                  people_attending=None,
-                 additional_info=None):
-        """Initialises simple group event.
+                 additional_info=None,
+                 *args,
+                 **kwargs
+    ):
+        """Initialises simple group event. *args and **kwargs are ignored.
 
         NOTE: people_attending is a list of dictionaries, each of which must
         contain at least a "name" field.
@@ -19,6 +23,10 @@ class GroupEvent(object):
             self.end_datetime = self.start_datetime + datetime.timedelta(hours=3)
 
         if people_attending is not None:
+            # If people_attending is a yaml string, un yaml it.
+            if type(people_attending) == str:
+                people_attending = yaml.load(people_attending)
+
             for peep in people_attending:
                 assert "name" in peep, \
                     "People dicts must contain \"name\" field."
@@ -33,13 +41,13 @@ class GroupEvent(object):
         else:
             self.additional_info = dict()
 
-    def export_as_dict(self):
+    def export(self):
         """Export class as a dictionary.
 
         The return value of this function can be used to initialise another
         GroupEvent using **kwargs e.g.
 
-            new_group_event = GroupEvent(**group_event.export_as_dict())
+            new_group_event = GroupEvent(**group_event.export())
 
         It can also be used to insert into a table from dataset.
         """
@@ -47,8 +55,8 @@ class GroupEvent(object):
         return {
             "start_datetime": self.start_datetime,
             "end_datetime": self.end_datetime,
-            # "people_attending": self.people_attending,
-            # "additional_info": self.additional_info if self.additional_info else None
+            "people_attending": yaml.dump(self.people_attending),
+            "additional_info": self.additional_info if self.additional_info else None
         }
 
     def add_person(self, name, **kwargs):
