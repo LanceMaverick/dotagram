@@ -15,47 +15,90 @@ import dataset
 token = os.environ.get('TG_BOT_TOKEN')
 BASE_URL = 'https://api.telegram.org/bot{token}'.format(token=token)
 
-class Event(object):
-    """A class to make events. """
+class People(dict):
+    """Extremely simple wrapper for people"""
 
-    def __init__(self, bot, message, time):
-
-        #set times
-        self.time = time
-        self.date_create = datetime.datetime.now()
-        self.hour = None
-        self.minute = None
-        self.date_event = None
-        self.set_time(self.time)
-
-        strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
-        with dataset.connect() as db:
-            print("inserting database entry")
-            print(strtime)
-            dota_table = db['dota_evt']
-            dota_table.insert(dict(stime = strtime))
-
-    def set_time(self,time):
-        try:
-            self.hour = time[:2]
-            self.minute = time[2:]
-            self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
-
-        except TypeError:
-            self.hour = '19'
-            self.minute = '30'
-            self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
-
-            sendText(self.bot,self.message.chat_id,msgs['t_error'])
-
-        strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
-        with dataset.connect() as db:
-            db['dota_evt'].insert(dict(stime = strtime)) #adds new entry rather than changing time for record keeping
+    def __init__(self, name, **kwargs):
+        self = {"name": name, **kwargs}
 
 
+class GroupEvent(object):
+    """A class to make events.
+
+    This should be completely divorced from the telegram bot.
+
+    Arguments:
+    start_datetime: datetime object
+    end_datetime: datetime object
+    people_attending: list of People
+    """
+
+    # def __init__(self, bot, message, time):
+    def __init__(self, start_datetime, end_datetime=None, people_attending=None, additional_info=None):
+        self.start_datetime = start_datetime
+
+        if end_time is None:
+            self.end_datetime = self.start_datetime + datetime.timedelta(hours=3)
+        else:
+            self.end_datetime = end_datetime
+
+        if people_attending is None:
+            self.people_attending = []
+        else:
+            self.people_attending = people_attending
+
+        self.additional_info = additional_info
+
+
+    def export_as_dict(self):
+        """Export as dictionary.
+
+        Kind of an emmitter but designed for use with dataset. It matches the
+        __init__ arguments.
+
+        """
+
+        return {
+            "start_datetime": self.start_datetime,
+            "end_datetime": self.end_datetime,
+            "people_attending": self.people_attending,
+            "additional_info": self.additional_info
+            }
+
+    #     #set times
+    #     self.time = time
+    #     self.date_create = datetime.datetime.now()
+    #     # self.hour = None
+    #     # self.minute = None
+    #     self.date_event = None
+    #     self.set_time(self.time)
+
+    #     strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
+    #     with dataset.connect() as db:
+    #         print("inserting database entry")
+    #         print(strtime)
+    #         dota_table = db['dota_evt']
+    #         dota_table.insert(dict(stime = strtime))
+
+    # def set_time(self,time):
+    #     try:
+    #         self.hour = time[:2]
+    #         self.minute = time[2:]
+    #         self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
+
+    #     except TypeError:
+    #         self.hour = '19'
+    #         self.minute = '30'
+    #         self.date_event = self.date_create.replace(hour=int(self.hour),minute=int(self.minute))
+
+    #         sendText(self.bot,self.message.chat_id,msgs['t_error'])
+
+    #     strtime = self.date_event.strftime('%Y-%m-%d %H:%M:%S')
+    #     with dataset.connect() as db:
+    #         db['dota_evt'].insert(dict(stime = strtime)) #adds new entry rather than changing time for record keeping
 
 #class for dota event
-class dota(Event):
+class dota(GroupEvent):
 
     def __init__(self,bot,message,time):
         super(dota, self).__init__(bot, message, time)
