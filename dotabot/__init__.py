@@ -209,10 +209,6 @@ class DotaBot(EventBot):
                         len(event.people_attending)))
             else:
                 await self.sender.sendMessage("No dota scheduled at the moment.")
-            # if (dotes):
-            #     dotes.stack(message)
-            # else:
-            #     events.nodota(bot,message)
 
         #AI tests
         # intents = af.intentChecker(skb_intelligence, 0.3, text)
