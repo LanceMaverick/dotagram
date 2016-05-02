@@ -1,4 +1,5 @@
 import telepot
+
 import dataset
 import datetime
 from dateutil.parser import parse as dparse
@@ -7,7 +8,6 @@ from .groupevent import GroupEvent
 
 class EventAlreadyPlanned(Exception):
     pass
-
 
 class EventBot(telepot.async.helper.ChatHandler):
     def __init__(self, seed_tuple, timeout, db_name="sqlite:///eventbot.db"):
@@ -58,10 +58,6 @@ class EventBot(telepot.async.helper.ChatHandler):
 
             table.update(event.export, ['people_attending'])
 
-            # TODO test
-
-
-
     async def create_event(self, msg):
         """Create group event. """
         await self.sender.sendMessage(
@@ -74,14 +70,13 @@ class EventBot(telepot.async.helper.ChatHandler):
         await self.sender.sendMessage(
             "Creating default group event, with you as first attendee.")
 
-        group_event = GroupEvent(
-            start_datetime,
-            people_attending=[
-                {"name": msg["from"]["username"]}])
+        group_event = GroupEvent(start_datetime)
 
         print(group_event.export())
         try:
             await self.write_event_to_db(group_event)
+            await self.add_person_to_event(group_event, {
+            "name": msg["from"]["username"]})
         except EventAlreadyPlanned:
             await self.sender.sendMessage("Sorry, event already planned for then!")
 
