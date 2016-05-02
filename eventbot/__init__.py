@@ -1,1 +1,1 @@
-from .eventbot import EventBot, EventAlreadyPlanned, PersonAlreadyAttending
+from .eventbot import EventBot, EventAlreadyPlanned, PersonAlreadyAttending, PersonNotAttending
