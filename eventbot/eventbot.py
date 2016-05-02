@@ -1,4 +1,5 @@
 import telepot
+import telepot.async
 
 import dataset
 import datetime
@@ -7,6 +8,9 @@ from dateutil.parser import parse as dparse
 from .groupevent import GroupEvent
 
 class EventAlreadyPlanned(Exception):
+    pass
+
+class PersonAlreadyAttending(Exception):
     pass
 
 class EventBot(telepot.async.helper.ChatHandler):
@@ -33,6 +37,7 @@ class EventBot(telepot.async.helper.ChatHandler):
             await self.sender.sendMessage(
                 str(self.__dict__))
 
+
     async def write_event_to_db(self, event):
         """Writes a GroupEvent to the database.
 
@@ -49,26 +54,40 @@ class EventBot(telepot.async.helper.ChatHandler):
     async def add_person_to_event(self, event, person):
         with dataset.connect(self.db_name) as db:
             table = db[self.db_table_name]
+            for i in table.all():
+                print(i)
             event_from_db = GroupEvent(
-                table.find_one(start_datetime=event.start_datetime))
+                **table.find_one(start_datetime=event.start_datetime))
+
 
             assert type(person) == dict
             assert "name" in person
+
+            print(event.export())
+            if person["name"] in (x["name"] for x in event.people_attending):
+                raise PersonAlreadyAttending()
+
             event.people_attending.append(person)
 
-            table.update(event.export, ['people_attending'])
+            table.update(event.export(), ['start_datetime'])
+            print(event.export())
+            for i in table.all():
+                print(i)
 
-    async def create_event(self, msg):
+    async def create_event(self, msg, prompt="When's dota?"):
         """Create group event. """
+        if await self.get_future_event():
+            raise EventAlreadyPlanned("There is already a future event planned.")
+
         await self.sender.sendMessage(
-            "When would you like the event? (Times will be interpreted as today)")
+            prompt)
 
         # TODO add error checking here
         response = await self.listener.wait()
         start_datetime = dparse(response["text"])
 
         await self.sender.sendMessage(
-            "Creating default group event, with you as first attendee.")
+            "Creating event, with you as first attendee.")
 
         group_event = GroupEvent(start_datetime)
 
@@ -80,6 +99,15 @@ class EventBot(telepot.async.helper.ChatHandler):
         except EventAlreadyPlanned:
             await self.sender.sendMessage("Sorry, event already planned for then!")
 
+    async def get_future_event(self):
+        """Returns true if event is happening in the future. """
+        with dataset.connect(self.db_name) as db:
+            table = db[self.db_table_name]
+            for event in table.all():
+                if event["start_datetime"] > datetime.datetime.now():
+                    return GroupEvent(**event)
+
+        # If no event is found, returns None
 
     # TODO rewrite this function to be much more human
     async def post_current_events(self, msg):

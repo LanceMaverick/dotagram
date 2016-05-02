@@ -13,7 +13,7 @@ import msg_texts
 import register as reg
 import events
 
-from eventbot import EventBot
+from eventbot import EventBot, EventAlreadyPlanned, PersonAlreadyAttending
 
 # From bot.py
 stack_queries = ['5 stack','5stack','stacked']
@@ -43,9 +43,7 @@ class DotaBot(EventBot):
         "docstring"
         super(DotaBot, self).__init__(seed_tuple, timeout, db_name)
 
-
     async def on_chat_message(self, msg):
-
         print(msg)
         # housekeeping
         if bf.expiry(patch_check_time,10):
@@ -115,7 +113,13 @@ class DotaBot(EventBot):
 
         #create or modify time of dota event
         if bf.command('/dota',text):
-            assert False, "Sorry, not implemented yet!"
+            try:
+                await self.create_event(msg)
+            except EventAlreadyPlanned:
+                event = await self.get_future_event()
+                await self.sender.sendMessage(
+                    "Event already planned for {}".format(
+                        event.start_datetime))
             # dota_checked = False
             # time = events.get_time(bot,message)
             # if (dotes):
@@ -132,15 +136,25 @@ class DotaBot(EventBot):
 
         #shotgun a place in dota
         if bf.command('shotgun!',text):
-            assert False, "Sorry, not implemented yet!"
-            # if (dotes):
-            #     dotes.shotgun(message)
-            # else:
-            #     events.nodota(bot,message)
+            # assert False, "Sorry, not implemented yet!"
+            event = await self.get_future_event()
+            if event:
+                try:
+                    await self.add_person_to_event(
+                        event,
+                        {"name": msg["from"]["username"]})
+                    await self.sender.sendMessage(
+                        "Your interest has been noted.")
+                except PersonAlreadyAttending:
+                    await self.sender.sendMessage(
+                        "Your interest has already been noted.")
+            else:
+                await self.sender.sendMessage(
+                    "I don't know about any Dota happening today.")
 
         #unshotgun your place in dota
         if bf.command('unshotgun!',text):
-            assert False, "Sorry, not implemented yet!"
+            await self.sender.sendMessage("Not totally sure how to do that yet...")
             # if (dotes):
             #     dotes.unshotgun(message,'shotgun')
             # else:

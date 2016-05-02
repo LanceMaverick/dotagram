@@ -16,6 +16,7 @@ class GroupEvent(object):
         contain at least a "name" field.
         """
 
+        assert type(start_datetime) == datetime.datetime
         self.start_datetime = start_datetime
         if end_datetime is not None:
             self.end_datetime = end_datetime
