@@ -200,8 +200,15 @@ class DotaBot(EventBot):
             bf.goodbye(bot,chat_id,message)
 
         #respond to queries on if dota is 5 stacked or not
-        if (bf.keywords(stack_queries,text.lower())):
-            assert False, "Sorry, not implemented!"
+        if bf.keywords(stack_queries, text.lower()):
+            # assert False, "Sorry, not implemented!"
+            event = await self.get_future_event()
+            if event:
+                await self.sender.sendMessage(
+                    "There are currently {} people shotgunned.".format(
+                        len(event.people_attending)))
+            else:
+                await self.sender.sendMessage("No dota scheduled at the moment.")
             # if (dotes):
             #     dotes.stack(message)
             # else:
