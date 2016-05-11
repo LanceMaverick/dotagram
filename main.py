@@ -10,6 +10,8 @@ from dotabot import DotaBot
 
 
 TOKEN = sys.argv[1]  # get token from command-line
+if not TOKEN:
+    TOKEN = input("Your Telegram Bot Token?")
 
 bot = telepot.async.DelegatorBot(TOKEN, [
     (per_chat_id(), create_open(DotaBot, timeout=10)),
