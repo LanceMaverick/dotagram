@@ -211,12 +211,25 @@ class DotaBot(EventBot):
                 await self.sender.sendMessage("No dota scheduled at the moment.")
 
         #AI tests
-        # intents = af.intentChecker(skb_intelligence, 0.3, text)
-        # try:
-        #     for intent in intents:
-        #         if intent['intent_type'] == 'DotaIntent':
-        #             events.dotaQuery(bot, message, dotes)
-        #         elif intent['intent_type'] == 'NewDotaIntent':
+        intents = af.intentChecker(skb_intelligence, 0.3, text)
+        try:
+            for intent in intents:
+                if intent['intent_type'] == 'DotaIntent':
+                    future_event = await self.get_future_event()
+                    if future_event:
+                        await self.sender.sendMessage("Yes, dota is happening.")
+                        await self.sender.sendMessage(str(future_event.start_datetime))
+                        await self.sender.sendMessage(
+                            "Attending:\n"+\
+                            "\n".join((x['name'] for x in future_event.people_attending)))
+                    # events.dotaQuery(bot, message, dotes)
+                elif intent['intent_type'] == 'NewDotaIntent':
+                    try:
+                        await self.create_event(msg)
+                    except EventAlreadyPlanned:
+                        future_event = await self.get_future_event()
+                        await self.sender.sendMessage(
+                            "Event already planned for {}.".format(future_event.start_datetime))
         #             dota_checked = False
         #             time = events.get_time(bot,message)
         #             if (dotes):
@@ -230,13 +243,29 @@ class DotaBot(EventBot):
         #                 if shotguns:
         #                     for cat in shotguns:
         #                         dotes.shotgun(message,cat)
-        #         elif intent['intent_type'] == 'StackIntent':
+                elif intent['intent_type'] == 'StackIntent':
+                    future_event = await self.get_future_event()
+                    if future_event and len(future_event.people_attending) >= 5:
+                        await self.sender.sendMessage("Stacked!")
+                        await self.sender.sendMessage(str(future_event.start_datetime))
+                        await self.sender.sendMessage(
+                            "Attending:\n"+\
+                            "\n".join((x['name'] for x in future_event.people_attending)))
+                    elif future_event:
+                        await self.sender.sendMessage("Not stacked yet")
+                        await self.sender.sendMessage(str(future_event.start_datetime))
+                        await self.sender.sendMessage(
+                            "Attending:\n"+\
+                            "\n".join((x['name'] for x in future_event.people_attending)))
+                    else:
+                        await self.sender.sendMessage("No event planned.")
+
         #             if (dotes):
         #                 dotes.stack(message)
         #             else:
         #                 events.nodota(bot,message)
-        # except:
-        #     print('no intents detected')
+        except:
+            print('no intents detected')
 
         # TODO: figure out what this does and convert it
         # pending_tag = btools.keySearch(tags,'name',user.first_name.lower())
