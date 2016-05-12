@@ -208,7 +208,7 @@ class DotaBot(EventBot):
                     "There are currently {} people shotgunned.".format(
                         len(event.people_attending)))
             else:
-                await self.sender.sendMessage("No dota scheduled at the moment.")
+                await self.sender.sendMessage("I don't know about any dota happening today.")
 
         #AI tests
         intents = af.intentChecker(skb_intelligence, 0.3, text)
@@ -222,6 +222,8 @@ class DotaBot(EventBot):
                         await self.sender.sendMessage(
                             "Attending:\n"+\
                             "\n".join((x['name'] for x in future_event.people_attending)))
+                    else:
+                        await self.sender.sendMessage("I don't know about any dota happening today")
                     # events.dotaQuery(bot, message, dotes)
                 elif intent['intent_type'] == 'NewDotaIntent':
                     try:
