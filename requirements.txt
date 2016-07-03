@@ -19,3 +19,4 @@ PyYAML==3.11
 requests==2.9.1
 six==1.10.0
 SQLAlchemy==1.0.12
+telepot==7.1
